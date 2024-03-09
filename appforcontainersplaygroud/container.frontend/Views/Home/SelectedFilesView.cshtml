@@ -1,0 +1,46 @@
+﻿@model IEnumerable<container.frontend.Models.FilesSelectedModel>
+
+@* <p>
+    <a asp-action="Create">Create New</a>
+</p> *@
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.filename)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.mimetype)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            if (Model != null)
+            {
+
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.filename)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.mimetype)
+                        </td>
+
+                        <td>
+                            @Html.ActionLink("Back to home", "Index", "Home")
+
+                        </td>
+                    </tr>
+                }
+
+            }
+        }
+    </tbody>
+</table>
+

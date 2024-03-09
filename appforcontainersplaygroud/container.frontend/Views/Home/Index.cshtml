@@ -1,0 +1,70 @@
+﻿@model IEnumerable<container.frontend.Models.FilesSelectedModel>
+
+@{
+    ViewData["Title"] = "App for Containers";
+}
+
+<div class="text-center">
+
+    
+    <h1 class="display-4">Welcome to app for contianers</h1>
+
+    <div style="border:3px solid blue">
+    <h2 style="color:blue;">
+        This is front end container (1)
+    </h2>
+
+    <br />
+
+    <form action="/UploadFiles" method="post" enctype="multipart/form-data">
+        
+        <h6>Please select images, docx and PDF files:</h6><br />
+        <input type="file" name="myfiles" id="myfiles" multiple />
+        <input type="submit" value="View" />
+    </form>
+    @* <table width="100%">
+    <tr><td>   <input type="file" id="files1" name="files1" style="margin-left:15px;" multiple /></td><td></td></tr>
+
+    </table> *@
+
+    @{
+
+        if (Model != null)
+        {
+
+            @await Html.PartialAsync("SelectedFilesView", Model)
+
+        }
+    }
+    <br />
+
+    </div>
+    <br />
+    <hr />
+    <br />
+    <div style="border:3px solid orange">
+        <h3 style="color:orange;">
+        This is backend(WebAPI) container (2)
+    </h3>
+    <h4><button>Sent files to Blob</button></h4>
+
+    </div>
+
+
+    <br />
+    <hr />
+    <br />
+    <div style="border:3px solid deeppink">
+        <h3 style="color:deeppink;">
+            This is backend(Azure fucntion) container (3)
+        </h3>
+        <h4><button>Read files to Blob</button></h4>
+
+    </div>
+
+    <br />
+    <br />
+
+    <p>Adnan Samuel</p>
+    @* <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
+</div>
