@@ -46,24 +46,23 @@ namespace container.frontend.Controllers
         [HttpPost("UploadFiles")]
         public ActionResult UploadFiles(List<IFormFile> myfiles)
         {
-            //var Request.Form.Files
             _memoryCache.Remove("allfiles");
-            FilesSelectedModel model = new FilesSelectedModel();
-            var ms = new MemoryStream();
-            foreach (var file in myfiles)
-            {
-                model = new FilesSelectedModel();
-                model.filename = file.FileName;
-                model.mimetype = file.ContentType;
-                file.CopyTo(ms);
-                model.filecontents = Convert.ToBase64String(ms.ToArray());
-                files.Add(model);
-            }
+             FilesSelectedModel model = new FilesSelectedModel();
+             var ms = new MemoryStream();
+             foreach (var file in Request.Form.Files)
+             {
+                 model = new FilesSelectedModel();
+                 model.filename = file.FileName;
+                 model.mimetype = file.ContentType;
+                 file.CopyTo(ms);
+                 model.filecontents = Convert.ToBase64String(ms.ToArray());
+                 files.Add(model);
+             }
 
-            _memoryCache.Set("allfiles", files);
+             _memoryCache.Set("allfiles", files);
 
-            //return View( files );
-            return PartialView("SelectedFilesView", files);
+             var json = JsonConvert.SerializeObject(model);
+             return Json(json);
 
 
         }
