@@ -7,6 +7,6 @@
         public string FileSize { get; set; }
         public string createdon { get; set; }
 
-        public string filePath { get; set; }
+        public string filecontents { get; set; }
     }
 }

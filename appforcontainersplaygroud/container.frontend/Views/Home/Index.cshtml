@@ -6,37 +6,37 @@
 
 <div class="text-center">
 
-    
+
     <h1 class="display-4">Welcome to app for contianers</h1>
 
     <div style="border:3px solid blue">
-    <h2 style="color:blue;">
-        This is front end container (1)
-    </h2>
+        <h2 style="color:blue;">
+            This is front end container (1)
+        </h2>
 
-    <br />
+        <br />
 
-    <form action="/UploadFiles" method="post" enctype="multipart/form-data">
-        
-        <h6>Please select images, docx and PDF files:</h6><br />
-        <input type="file" name="myfiles" id="myfiles" multiple />
-        <input type="submit" value="View" />
-    </form>
-    @* <table width="100%">
-    <tr><td>   <input type="file" id="files1" name="files1" style="margin-left:15px;" multiple /></td><td></td></tr>
+        <form action="/UploadFiles" method="post" enctype="multipart/form-data">
 
-    </table> *@
+            <h6>Please select an image:</h6><br />
+            <input type="file" name="myfiles" id="myfiles"  />
+            <input type="submit" value="View" />
+        </form>
+        @* <table width="100%">
+        <tr><td>   <input type="file" id="files1" name="files1" style="margin-left:15px;" multiple /></td><td></td></tr>
 
-    @{
+        </table> *@
 
-        if (Model != null)
-        {
+        @{
 
-            @await Html.PartialAsync("SelectedFilesView", Model)
+            if (Model != null)
+            {
 
+                    @await Html.PartialAsync("SelectedFilesView", Model)
+
+            }
         }
-    }
-    <br />
+        <br />
 
     </div>
     <br />
@@ -44,9 +44,10 @@
     <br />
     <div style="border:3px solid orange">
         <h3 style="color:orange;">
-        This is backend(WebAPI) container (2)
-    </h3>
-    <h4><button>Sent files to Blob</button></h4>
+            This is backend(WebAPI) container (2)
+        </h3>
+      <p id="imgurl" style="font-size:large"></p> 
+        <h4><button onclick="senttoblob()">Sent files to Blob</button></h4>
 
     </div>
 
@@ -68,3 +69,30 @@
     <p>Adnan Samuel</p>
     @* <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p> *@
 </div>
+
+<script type="text/javascript">
+
+    function senttoblob() {
+
+        var http = new XMLHttpRequest();
+        var url = '/SentToblob';
+         
+
+        http.open('GET', url, true);
+
+        //Send the proper header information along with the request
+        http.setRequestHeader('Content-type', 'application/json');
+
+        http.onreadystatechange = function () {//Call a function when the state changes.
+            if (http.readyState == 4 && http.status == 200) {
+                // alert(http.responseText);
+
+                var par = document.getElementById("imgurl");
+                par.textContent=(http.responseText);
+            }
+        }
+        http.send(null);
+    }
+
+
+</script>

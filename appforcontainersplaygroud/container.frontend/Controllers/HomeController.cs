@@ -1,7 +1,9 @@
 ﻿using container.frontend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text;
 
 namespace container.frontend.Controllers
 {
@@ -44,22 +46,54 @@ namespace container.frontend.Controllers
         [HttpPost("UploadFiles")]
         public ActionResult UploadFiles(List<IFormFile> myfiles)
         {
+            //var Request.Form.Files
             _memoryCache.Remove("allfiles");
             FilesSelectedModel model = new FilesSelectedModel();
+            var ms = new MemoryStream();
             foreach (var file in myfiles)
             {
                 model = new FilesSelectedModel();
                 model.filename = file.FileName;
                 model.mimetype = file.ContentType;
+                file.CopyTo(ms);
+                model.filecontents = Convert.ToBase64String(ms.ToArray());
                 files.Add(model);
-
-                _memoryCache.Set("allfiles", files);
             }
+
+            _memoryCache.Set("allfiles", files);
 
             //return View( files );
             return PartialView("SelectedFilesView", files);
 
 
         }
+
+        [HttpGet("SentToblob")]
+        public async Task<ActionResult<string>> SentToblob()
+        {
+            string url = "https://localhost:44349/api/Home"; // sample url
+            string result = string.Empty;
+            _memoryCache.TryGetValue("allfiles", out files);
+
+            BlobDataModel blobDataModel = new BlobDataModel();
+            foreach (var file in files)
+            {
+                blobDataModel = new BlobDataModel();
+                blobDataModel.filecontents = file.filecontents;
+                blobDataModel.filename = file.filename;
+                blobDataModel.mimetype = file.mimetype;
+            }
+
+            var payload = JsonConvert.SerializeObject(blobDataModel);
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            using (HttpClient client = new HttpClient())
+            {
+                var response= await client.PostAsync(url, content);
+                result = await response.Content.ReadAsStringAsync();
+            }
+
+            return Ok(result);
+        }
+
     }
 }
