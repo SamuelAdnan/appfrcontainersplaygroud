@@ -1,4 +1,4 @@
-﻿@model IEnumerable<container.frontend.Models.FilesSelectedModel>
+@model IEnumerable<container.frontend.Models.FilesSelectedModel>
 
 @{
     ViewData["Title"] = "App for Containers";
@@ -14,27 +14,38 @@
             This is front end container (1)
         </h2>
 
-        <br />
 
-        <form action="/UploadFiles" method="post" enctype="multipart/form-data">
 
-            <h6>Please select an image:</h6><br />
-            <input type="file" name="myfiles" id="myfiles"  />
-            <input type="submit" value="View" />
+
+
+        @*  <form action="/UploadFiles" method="post" enctype="multipart/form-data">
+
+        <h6>Please select an image:</h6><br />
+        <input type="file" name="myfiles" id="myfiles"  />
+        <input type="submit" value="View" />
         </form>
-        @* <table width="100%">
-        <tr><td>   <input type="file" id="files1" name="files1" style="margin-left:15px;" multiple /></td><td></td></tr>
 
-        </table> *@
+        <br /> *@
+        <h6>Please select an HD image:</h6><br />
+        <input type="file" name="myfiles" id="myfiles" />
+        <input type="button" value="View" onclick="sendData()" />
+
+        <div id="divimg" style="display:none;">            
+            <br />
+            <img width="500" height="450" id="imgsrc"
+                 src="data">
+
+        </div>
+      
 
         @{
 
-            if (Model != null)
-            {
+            // if (Model != null)
+            // {
 
-                    @await Html.PartialAsync("SelectedFilesView", Model)
+            //     @await Html.PartialAsync("SelectedFilesView", Model)
 
-            }
+            // }
         }
         <br />
 
@@ -46,7 +57,7 @@
         <h3 style="color:orange;">
             This is backend(WebAPI) container (2)
         </h3>
-      <p id="imgurl" style="font-size:large"></p> 
+        <p id="imgurl" style="font-size:large"></p>
         <h4><button onclick="senttoblob()">Sent files to Blob</button></h4>
 
     </div>
@@ -76,7 +87,7 @@
 
         var http = new XMLHttpRequest();
         var url = '/SentToblob';
-         
+
 
         http.open('GET', url, true);
 
@@ -88,11 +99,46 @@
                 // alert(http.responseText);
 
                 var par = document.getElementById("imgurl");
-                par.textContent=(http.responseText);
+                par.textContent = (http.responseText);
             }
         }
         http.send(null);
     }
 
+    function sendData() {
 
+        document.getElementById("divimg").style.display = "none";
+        var input = document.querySelector('input[type="file"]')
+
+        var data = new FormData()
+        data.append('file', input.files[0])
+        data.append('user', 'hubot')
+
+        fetch('/UploadFiles', {
+            method: 'POST',
+            body: data
+        })
+            .then(response => console.log(response.status) || response) // output the status and return response
+            .then(response => response.text()) // send response body to next then chain
+            .then(body => {
+                console.log(body)
+
+                var temp1 = JSON.parse(body);//double quote here
+
+                var imageObj = JSON.parse(temp1); //now ginal parsing
+                var mydiv = document.getElementById("divimg");
+
+                mydiv.style.display = "block";
+
+                var myimd = document.getElementById("imgsrc")
+                myimd.src = "data:image/jpeg;base64," + imageObj.filecontents;
+                // var imageBytes = base64ToArrayBuffer()
+            })
+    }
+
+
+   
+    
+
+ 
 </script>
