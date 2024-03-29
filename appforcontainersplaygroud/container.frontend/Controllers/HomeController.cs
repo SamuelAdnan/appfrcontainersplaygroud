@@ -12,12 +12,13 @@ namespace container.frontend.Controllers
         List<FilesSelectedModel> files = new List<FilesSelectedModel>();
         private readonly ILogger<HomeController> _logger;
         private readonly IMemoryCache _memoryCache;
-
+        private readonly IConfiguration configuration;
         public HomeController(ILogger<HomeController> logger,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache, IConfiguration Configuration)
         {
             _logger = logger;
             _memoryCache = memoryCache;
+            configuration = Configuration;
 
         }
 
@@ -47,22 +48,22 @@ namespace container.frontend.Controllers
         public ActionResult UploadFiles(List<IFormFile> myfiles)
         {
             _memoryCache.Remove("allfiles");
-             FilesSelectedModel model = new FilesSelectedModel();
-             var ms = new MemoryStream();
-             foreach (var file in Request.Form.Files)
-             {
-                 model = new FilesSelectedModel();
-                 model.filename = file.FileName;
-                 model.mimetype = file.ContentType;
-                 file.CopyTo(ms);
-                 model.filecontents = Convert.ToBase64String(ms.ToArray());
-                 files.Add(model);
-             }
+            FilesSelectedModel model = new FilesSelectedModel();
+            var ms = new MemoryStream();
+            foreach (var file in Request.Form.Files)
+            {
+                model = new FilesSelectedModel();
+                model.filename = file.FileName;
+                model.mimetype = file.ContentType;
+                file.CopyTo(ms);
+                model.filecontents = Convert.ToBase64String(ms.ToArray());
+                files.Add(model);
+            }
 
-             _memoryCache.Set("allfiles", files);
+            _memoryCache.Set("allfiles", files);
 
-             var json = JsonConvert.SerializeObject(model);
-             return Json(json);
+            var json = JsonConvert.SerializeObject(model);
+            return Json(json);
 
 
         }
@@ -70,28 +71,41 @@ namespace container.frontend.Controllers
         [HttpGet("SentToblob")]
         public async Task<ActionResult<string>> SentToblob()
         {
-            string url = "https://localhost:44349/api/Home"; // sample url
-            string result = string.Empty;
-            _memoryCache.TryGetValue("allfiles", out files);
-
-            BlobDataModel blobDataModel = new BlobDataModel();
-            foreach (var file in files)
+            string url = string.Empty;
+            if (configuration["ApiUrl"] != null &&
+                ( !string.IsNullOrWhiteSpace(configuration["ApiUrl"])))
             {
-                blobDataModel = new BlobDataModel();
-                blobDataModel.filecontents = file.filecontents;
-                blobDataModel.filename = file.filename;
-                blobDataModel.mimetype = file.mimetype;
+                url = configuration["ApiUrl"];
+
+                //string url = "https://localhost:44349/api/Home"; // sample url
+                string result = string.Empty;
+                _memoryCache.TryGetValue("allfiles", out files);
+
+                BlobDataModel blobDataModel = new BlobDataModel();
+                foreach (var file in files)
+                {
+                    blobDataModel = new BlobDataModel();
+                    blobDataModel.filecontents = file.filecontents;
+                    blobDataModel.filename = file.filename;
+                    blobDataModel.mimetype = file.mimetype;
+                }
+
+                var payload = JsonConvert.SerializeObject(blobDataModel);
+                var content = new StringContent(payload, Encoding.UTF8, "application/json");
+                using (HttpClient client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, content);
+                    result = await response.Content.ReadAsStringAsync();
+                }
+
+                return Ok(result);
+            }
+            else
+            {
+                return Ok("ApiUrl is empty.");
             }
 
-            var payload = JsonConvert.SerializeObject(blobDataModel);
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            using (HttpClient client = new HttpClient())
-            {
-                var response= await client.PostAsync(url, content);
-                result = await response.Content.ReadAsStringAsync();
-            }
-
-            return Ok(result);
+           
         }
 
     }

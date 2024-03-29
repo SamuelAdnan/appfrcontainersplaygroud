@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using System.Drawing;
 
 namespace container.backendwebapi
 {
@@ -21,11 +22,10 @@ namespace container.backendwebapi
         }
 
 
-        public static BlobContainerClient GetBlobContainerClient()
+        public static BlobContainerClient GetBlobContainerClient(string blobconnectionstring, string containerName)
         {
             BlobServiceClient blobServiceClient = null;
-            string blobconnectionstring = "****";
-            string containerName = "***s";
+          
 
             blobServiceClient = new BlobServiceClient(blobconnectionstring);
             BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
@@ -38,6 +38,10 @@ namespace container.backendwebapi
         public static byte[] GetImageBytes(System.Drawing.Image image,
         System.Drawing.Imaging.ImageFormat format)
         {
+           
+
+
+           
             using (var ms = new System.IO.MemoryStream())
             {
                 image.Save(ms, format);
